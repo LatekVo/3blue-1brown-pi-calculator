@@ -177,9 +177,8 @@ fn main() {
         let mut used: usize = 0;
         
         //czyszczenie ekranu
-        print!("{}[2J", 27 as char);
-
-       
+        //print!("{}[2J", 27 as char);
+ 
         //drukowanie wszystkiego na ekranie
         println!();
         for _ in 0..box1.p as usize {
