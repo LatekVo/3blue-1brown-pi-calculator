@@ -1,3 +1,23 @@
+/************************
+ *
+ *  Ignacy Łątka
+ *
+ *  Przekomplikowany kalkulator pi
+ *
+ *  - - - - - - - - - - - - - - - - - - - - -
+ *
+ *  Cały kod jest opisany tak, aby można było go czytać jak normalny język
+ *
+ *  Próbowałem dodać ładniejszy interfejs ale było to za trudne
+ *
+ *  Modyfikując podpisane wartośći przed którymi jest 'const'
+ *  można modyfikować działanie programu
+ *
+ */
+
+//biblioteka graficzna
+//use fltk::{app, button::*, frame::*, window::*};
+
 //wielo-wątkowość
 //use std::{thread, time};
 
@@ -10,7 +30,7 @@ struct Cube {
     p: f64, 
     s: f64,
     v: f64, 
-    m: f64
+    m: f64,
 }
 
 impl Cube {
@@ -25,28 +45,33 @@ impl Cube {
 }   
 
 
-//większa liczba -- większa precyzja
-//jeżeli symulacja jest zbyt powolna, 
-//można zmniejszyć tą liczbę, jednak
-//nie może być zbyt niska.
-//Przy PI_D=5, minimum dla tej liczby to 100.
-//zalecana wartość na moim komputerze to 10_000
-const TIMESTEP: usize = 10_000;
+/*=====================================*\
+| vvv TE WARTOŚCI MOŻNA MODYFIKOWAĆ vvv |
+\*=====================================*/
 
+    //większa liczba -- większa precyzja
+    //jeżeli symulacja jest zbyt powolna, 
+    //można zmniejszyć tą liczbę, jednak
+    //nie może być zbyt niska.
+    //Przy PI_D=5, minimum dla tej liczby to 100.
+    //zalecana wartość na moim komputerze to 10_000
+    const TIMESTEP: usize = 10000;
 
-//ta wartość wskazuje ilości cyfr PI po przecinku
-//wartości powyżej 5 zajmują długo do obliczenia
-const PI_D: usize = 5;
+    //ta wartość wskazuje ilości cyfr PI po przecinku
+    //wartości powyżej 5 zajmują długo do obliczenia
+    const PI_D: usize = 5;
 
+    //limit od prawej strony
+    const SIZE: usize = 100;
+    //wizualna wielkość drugiego elementu
+    const MAX_Y: usize = 20;
 
-
-//limit od prawej strony
-const SIZE: usize = 100;
-//wizualna wielkość drugiego elementu
-const MAX_Y: usize = 20;
+/*=====================================*\
+| ^^^ TE WARTOŚCI MOŻNA MODYFIKOWAĆ ^^^ |
+\*=====================================*/
 
 fn main() {
-    
+
     //obie sumy są dodawane do siebie, tworząc 'n', a liczba cyfr pi to 'd'
     //wzór to: d = n + 1
     //obliczenia szybko zaczynają zabierać coraz więcej czasu
@@ -55,10 +80,11 @@ fn main() {
     //szybko stają się za duże dla komputera, przez rozdzielenie je na 2 osobne liczby,
    
     //dlatego też liczbę PI_D dzielę na 2 mniejsze
+
     const PI_D_1: usize = PI_D/2;
     
     const PI_D_2: usize = {
-        if PI_D % 2 == 0 {
+    if PI_D % 2 == 0 {
             PI_D/2
         } else {
             PI_D/2+1
@@ -84,7 +110,8 @@ fn main() {
     let mut box1 = Cube::new(5.0, 5.0, 0.0, mf);
     let mut box2 = Cube::new(40.0, MAX_Y as f64, -1.0, mu as f64);
     let mut cnt: u32 = 0;
-    
+    //nieużywana tablica, może być użyta jak dodam lepszy interfejs
+    //let mut graph: [[char; 21]; 21] = [['.'; 21]; 21];
     //nieużywana zmienna, która ma szansę później być użyta
     //let frame = time::Duration::from_millis(1);
 
@@ -99,6 +126,7 @@ fn main() {
     //  v2 = ((2*m1)/(m1+m2))u1 + ((m2-m1)/(m1+m2))*u2
 
     //  a teraz to tylko że na kod
+    
     loop {
 
         //przesuwamy objekt o prędkość
@@ -147,10 +175,13 @@ fn main() {
 
         //kolejny licznik
         let mut used: usize = 0;
-
+        
         //czyszczenie ekranu
         print!("{}[2J", 27 as char);
-        
+
+       
+        //drukowanie wszystkiego na ekranie
+        println!();
         for _ in 0..box1.p as usize {
             print!(".");
             used += 1;
@@ -239,5 +270,60 @@ thread::spawn(move|| {
     println!("Kolizje: {}", cnt_cop);
     thread::sleep(frame);
 });
+*/
+//Do tego potrzeba bibliotek, które miały za mało dokumentacji lub były zbyt trudne
+/*
+
+Kod na wizualizację z kąd bierze się pi w tej symulacji
+
+//energia potencjalna, pokazująca skąd bierze się pi.
+let ep1: f64 = box1.m.sqrt() * box1.v; 
+let ep2: f64 = box2.m.sqrt() * box2.v;
+
+//potrzebna do przekształcenia liczb 0->n na liczby 0->1, a potem 0->19 (20)
+let sum = ep1+ep2;
+
+
+
+
+kod na rysowanie koła 21x21
+
+//obrysowanie koła w grafie
+for i in 0..360 {
+    //obrysowanie koła za pomocą macierzy obrotu
+    //https://en.wikipedia.org/wiki/Rotation_matrix
+    //koordynaty 10, 10 są środkiem, weźmiemy środek jakiejś krawędzi, np 10, 0
+    let d = i as f32;
+    
+    //wzór
+    // x = x * cos(d) - y * sin(d)
+    // y = x * sin(d) + y * cos(d)
+    
+    //kod
+    //let x: usize = (10.0 * d.to_radians().cos() - 0.0 * d.to_radians().sin()) as usize;
+    //let y: usize = (10.0 * d.to_radians().sin() + 0.0 * d.to_radians().cos()) as usize;
+    
+    //jako że mnożymy to przez zero, możemy usunąć drógą połowę wzoru
+    let x: isize = (10.0 * d.to_radians().cos()) as isize;
+    let y: isize = (10.0 * d.to_radians().sin()) as isize;
+    
+    graph[(x+10) as usize][(y+10) as usize] = '*';
+}
+
+kod na rysowanie koła razem z definicjami oraz liniami na kole        
+        
+println!("x = sqrt (m1) * v1");
+println!("y = sqrt (m2) * v2");
+
+println!();
+
+for y in 0..21 {
+for x in 0..21 {
+print!("{} ", graph[x][y]);
+}
+println!();
+}
+        
+
 */
 
